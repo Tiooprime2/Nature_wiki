@@ -1,0 +1,535 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Capybara — Nature Wiki</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Linux+Libertine+Display:ital,wght@0,400;0,600;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Source+Sans+3:wght@400;600&display=swap">
+
+<style>
+/* === DESIGN TOKENS — capybara earth palette === */
+:root {
+  --bg:           #f8f5f0;
+  --bg-alt:       #eee9e1;
+  --fg:           #1a1612;
+  --fg-muted:     #5c4f3d;
+  --accent:       #7a5c2e;
+  --accent-light: #c9a96e;
+  --accent-bg:    #f2ead9;
+  --border:       #c8b99a;
+  --border-light: #e0d5c2;
+  --infobox-bg:   #f5f0e8;
+  --caption:      #6b5a3e;
+  --link:         #6b4c1a;
+  --toc-bg:       #f9f6f0;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:           #1a1510;
+    --bg-alt:       #241e16;
+    --fg:           #ede4d3;
+    --fg-muted:     #a89070;
+    --accent:       #c9a96e;
+    --accent-light: #7a5c2e;
+    --accent-bg:    #2a2018;
+    --border:       #4a3a28;
+    --border-light: #352a1e;
+    --infobox-bg:   #221c14;
+    --caption:      #9a8060;
+    --link:         #c9a96e;
+    --toc-bg:       #1e1812;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg:           #1a1510;
+  --bg-alt:       #241e16;
+  --fg:           #ede4d3;
+  --fg-muted:     #a89070;
+  --accent:       #c9a96e;
+  --accent-light: #7a5c2e;
+  --accent-bg:    #2a2018;
+  --border:       #4a3a28;
+  --border-light: #352a1e;
+  --infobox-bg:   #221c14;
+  --caption:      #9a8060;
+  --link:         #c9a96e;
+  --toc-bg:       #1e1812;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 16px;
+  line-height: 1.7;
+  padding-left:  max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0;
+}
+
+/* === HEADER === */
+.site-header {
+  background: var(--accent);
+  color: #fff;
+  padding: 0 max(24px, env(safe-area-inset-left, 0px));
+  padding-block: 0;
+  border-bottom: 3px solid var(--accent-light);
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 20;
+}
+.site-header-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 52px;
+}
+.site-logo {
+  font-family: 'Linux Libertine Display', 'Linux Libertine', Georgia, serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #fff;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.site-logo span { opacity: 0.7; font-weight: 400; }
+.header-tagline {
+  font-family: 'Source Sans 3', system-ui, sans-serif;
+  font-size: 0.8rem;
+  opacity: 0.75;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* === LAYOUT === */
+.page-wrapper {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-block: 28px 60px;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 32px;
+  align-items: start;
+}
+
+@media (max-width: 760px) {
+  .content-grid { grid-template-columns: 1fr; }
+  .sidebar { order: -1; }
+}
+
+/* === ARTICLE === */
+.article-title {
+  font-family: 'Linux Libertine Display', Georgia, serif;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 400;
+  line-height: 1.15;
+  margin: 0 0 4px;
+  color: var(--fg);
+  text-wrap: balance;
+}
+.article-subtitle {
+  font-family: 'Source Sans 3', system-ui, sans-serif;
+  font-size: 1rem;
+  color: var(--fg-muted);
+  font-style: italic;
+  margin: 0 0 20px;
+  letter-spacing: 0.01em;
+}
+.article-divider {
+  border: none;
+  border-top: 2px solid var(--accent);
+  margin: 0 0 24px;
+}
+
+/* === TABLE OF CONTENTS === */
+.toc {
+  background: var(--toc-bg);
+  border: 1px solid var(--border);
+  padding: 14px 18px 16px;
+  margin-bottom: 28px;
+  display: inline-block;
+  min-width: 200px;
+  max-width: 340px;
+}
+.toc-title {
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fg-muted);
+  margin: 0 0 10px;
+}
+.toc ol {
+  margin: 0;
+  padding-left: 20px;
+}
+.toc li {
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.9rem;
+  margin-bottom: 3px;
+}
+.toc a {
+  color: var(--link);
+  text-decoration: none;
+}
+.toc a:hover { text-decoration: underline; }
+
+/* === SECTION HEADINGS === */
+.section-heading {
+  font-family: 'Linux Libertine Display', Georgia, serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 4px;
+  margin: 36px 0 14px;
+  color: var(--fg);
+}
+.subsection-heading {
+  font-family: 'Linux Libertine Display', Georgia, serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 22px 0 8px;
+  color: var(--fg);
+}
+
+/* === BODY TEXT === */
+p {
+  margin: 0 0 14px;
+  max-width: 70ch;
+}
+a { color: var(--link); }
+
+/* === INLINE IMAGE (floated like Wikipedia) === */
+.wiki-image {
+  float: right;
+  clear: right;
+  margin: 0 0 18px 24px;
+  max-width: 280px;
+  width: 100%;
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  padding: 6px 6px 8px;
+  font-family: 'Source Sans 3', sans-serif;
+}
+.wiki-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.wiki-image figcaption {
+  font-size: 0.78rem;
+  color: var(--caption);
+  margin-top: 5px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .wiki-image {
+    float: none;
+    margin: 0 0 18px;
+    max-width: 100%;
+  }
+}
+
+/* === INFOBOX === */
+.infobox {
+  background: var(--infobox-bg);
+  border: 1px solid var(--border);
+  width: 100%;
+  margin-bottom: 0;
+  font-family: 'Source Sans 3', system-ui, sans-serif;
+  font-size: 0.88rem;
+}
+.infobox-title {
+  background: var(--accent);
+  color: #fff;
+  text-align: center;
+  padding: 8px 10px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+}
+.infobox-hero {
+  width: 100%;
+  display: block;
+  border-bottom: 1px solid var(--border);
+}
+.infobox-hero img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+}
+.infobox-caption {
+  font-size: 0.78rem;
+  color: var(--caption);
+  text-align: center;
+  padding: 5px 8px 8px;
+  border-bottom: 1px solid var(--border-light);
+  font-style: italic;
+}
+.infobox table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.infobox td {
+  padding: 5px 10px;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border-light);
+  line-height: 1.4;
+}
+.infobox td:first-child {
+  font-weight: 600;
+  color: var(--fg-muted);
+  white-space: nowrap;
+  width: 45%;
+}
+.infobox td:last-child { color: var(--fg); }
+
+/* === FACT BAND === */
+.fact-band {
+  background: var(--accent-bg);
+  border-left: 4px solid var(--accent);
+  padding: 12px 16px;
+  margin: 20px 0;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.92rem;
+  color: var(--fg-muted);
+  max-width: 66ch;
+}
+.fact-band strong { color: var(--accent); }
+
+/* === CATEGORIES === */
+.categories {
+  border-top: 1px solid var(--border);
+  margin-top: 40px;
+  padding-top: 12px;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.82rem;
+  color: var(--fg-muted);
+}
+.categories span { font-weight: 600; }
+
+.clearfix::after { content: ""; display: table; clear: both; }
+</style>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-logo" href="#">🌿 Nature<span>Wiki</span></a>
+    <span class="header-tagline">Encyclopedia of Wildlife</span>
+  </div>
+</header>
+
+<div class="page-wrapper">
+  <div class="content-grid">
+
+    <!-- MAIN ARTICLE -->
+    <main>
+      <h1 class="article-title">Capybara</h1>
+      <p class="article-subtitle"><em>Hydrochoerus hydrochaeris</em> — World's Largest Rodent</p>
+      <hr class="article-divider">
+
+      <!-- TOC -->
+      <nav class="toc">
+        <p class="toc-title">Contents</p>
+        <ol>
+          <li><a href="#overview">Overview</a></li>
+          <li><a href="#survival">Survival in the Wild</a></li>
+          <li><a href="#reproduction">Reproduction</a></li>
+          <li><a href="#behavior">Behavior</a></li>
+          <li><a href="#conservation">Conservation Status</a></li>
+        </ol>
+      </nav>
+
+      <!-- OVERVIEW -->
+      <div class="clearfix">
+        <figure class="wiki-image">
+          <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NDAgMzYwIiB3aWR0aD0iNjQwIiBoZWlnaHQ9IjM2MCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InNreSIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjYzhlOGQ0Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2EwYzhhOCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0id2F0ZXIiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzZhYWNiYSIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM0YTg4OTgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImJvZHkiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzhjNmIzYSIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM2YTRlMjgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDwhLS0gc2t5IC0tPgogIDxyZWN0IHdpZHRoPSI2NDAiIGhlaWdodD0iMjAwIiBmaWxsPSJ1cmwoI3NreSkiLz4KICA8IS0tIGRpc3RhbnQgdHJlZWxpbmUgLS0+CiAgPGVsbGlwc2UgY3g9IjEyMCIgY3k9IjE5NSIgcng9IjkwIiByeT0iNTUiIGZpbGw9IiM1YThhNWEiIG9wYWNpdHk9IjAuNyIvPgogIDxlbGxpcHNlIGN4PSIyNjAiIGN5PSIxODUiIHJ4PSIxMTAiIHJ5PSI2NSIgZmlsbD0iIzRhN2E0YSIgb3BhY2l0eT0iMC44Ii8+CiAgPGVsbGlwc2UgY3g9IjQ1MCIgY3k9IjE5MCIgcng9IjEzMCIgcnk9IjYwIiBmaWxsPSIjNWE4YTVhIiBvcGFjaXR5PSIwLjciLz4KICA8ZWxsaXBzZSBjeD0iNTkwIiBjeT0iMTk4IiByeD0iODAiIHJ5PSI1MCIgZmlsbD0iIzRhN2E0YSIgb3BhY2l0eT0iMC42Ii8+CiAgPCEtLSBncm91bmQgLS0+CiAgPHJlY3QgeT0iMTk1IiB3aWR0aD0iNjQwIiBoZWlnaHQ9IjE2NSIgZmlsbD0iIzhhYjg2YSIvPgogIDwhLS0gd2F0ZXIgLS0+CiAgPGVsbGlwc2UgY3g9IjMyMCIgY3k9IjMxMCIgcng9IjI4MCIgcnk9IjQ1IiBmaWxsPSJ1cmwoI3dhdGVyKSIgb3BhY2l0eT0iMC44NSIvPgogIDwhLS0gd2F0ZXIgcmlwcGxlcyAtLT4KICA8ZWxsaXBzZSBjeD0iMzIwIiBjeT0iMzEwIiByeD0iMjAwIiByeT0iMjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzg4YzhkOCIgc3Ryb2tlLXdpZHRoPSIxLjUiIG9wYWNpdHk9IjAuNSIvPgogIDxlbGxpcHNlIGN4PSIzMjAiIGN5PSIzMTAiIHJ4PSIxMzAiIHJ5PSIxNSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjODhjOGQ4IiBzdHJva2Utd2lkdGg9IjEiIG9wYWNpdHk9IjAuNCIvPgogIDwhLS0gZ3Jhc3MgdHVmdHMgLS0+CiAgPGcgZmlsbD0iIzVhODA0MCIgb3BhY2l0eT0iMC45Ij4KICAgIDxlbGxpcHNlIGN4PSI4MCIgY3k9IjI2NSIgcng9IjI1IiByeT0iOCIvPgogICAgPGVsbGlwc2UgY3g9IjU1NSIgY3k9IjI2MCIgcng9IjIyIiByeT0iNyIvPgogICAgPGVsbGlwc2UgY3g9IjQ5MCIgY3k9IjI3NSIgcng9IjE4IiByeT0iNiIvPgogICAgPGVsbGlwc2UgY3g9IjE0MCIgY3k9IjI3NSIgcng9IjE2IiByeT0iNSIvPgogIDwvZz4KICA8IS0tIGNhcHliYXJhIGJvZHkgLS0+CiAgPGVsbGlwc2UgY3g9IjI5MCIgY3k9IjI0OCIgcng9IjEzMCIgcnk9IjYyIiBmaWxsPSJ1cmwoI2JvZHkpIi8+CiAgPCEtLSBkYXJrZXIgYmVsbHkgLS0+CiAgPGVsbGlwc2UgY3g9IjI5MCIgY3k9IjI3NSIgcng9IjExMCIgcnk9IjI4IiBmaWxsPSIjNWE0MDIwIiBvcGFjaXR5PSIwLjQiLz4KICA8IS0tIGhlYWQgLS0+CiAgPGVsbGlwc2UgY3g9IjM4MCIgY3k9IjIxOCIgcng9IjY4IiByeT0iNTUiIGZpbGw9IiM4YzZiM2EiLz4KICA8IS0tIG11enpsZS9zbm91dCDigJQgZmxhdCBhbmQgd2lkZSAtLT4KICA8cmVjdCB4PSI0MTAiIHk9IjIyOCIgd2lkdGg9IjUyIiBoZWlnaHQ9IjM0IiByeD0iMTAiIGZpbGw9IiM3YTVhMmEiLz4KICA8IS0tIG5vc3RyaWwgc2xpdHMgLS0+CiAgPGVsbGlwc2UgY3g9IjQyNSIgY3k9IjI0MyIgcng9IjUiIHJ5PSIzIiBmaWxsPSIjM2EyYTEwIi8+CiAgPGVsbGlwc2UgY3g9IjQ0NSIgY3k9IjI0MyIgcng9IjUiIHJ5PSIzIiBmaWxsPSIjM2EyYTEwIi8+CiAgPCEtLSBleWUgLS0+CiAgPGNpcmNsZSBjeD0iMzkyIiBjeT0iMjEwIiByPSI5IiBmaWxsPSIjMmExYTA4Ii8+CiAgPGNpcmNsZSBjeD0iMzk1IiBjeT0iMjA3IiByPSIzIiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjYiLz4KICA8IS0tIGVhciAtLT4KICA8ZWxsaXBzZSBjeD0iMzU1IiBjeT0iMTg4IiByeD0iMTQiIHJ5PSIxMCIgZmlsbD0iIzdhNWEyYSIvPgogIDxlbGxpcHNlIGN4PSIzNTUiIGN5PSIxODgiIHJ4PSI5IiByeT0iNiIgZmlsbD0iI2M4OTQ4YSIgb3BhY2l0eT0iMC42Ii8+CiAgPCEtLSBsZWdzIC0tPgogIDxyZWN0IHg9IjE5NSIgeT0iMjk1IiB3aWR0aD0iMjgiIGhlaWdodD0iMzgiIHJ4PSIxMCIgZmlsbD0iIzdhNWEyYSIvPgogIDxyZWN0IHg9IjI0NSIgeT0iMjk4IiB3aWR0aD0iMjgiIGhlaWdodD0iMzUiIHJ4PSIxMCIgZmlsbD0iIzdhNWEyYSIvPgogIDxyZWN0IHg9IjMyNSIgeT0iMjk1IiB3aWR0aD0iMjgiIGhlaWdodD0iMzgiIHJ4PSIxMCIgZmlsbD0iIzdhNWEyYSIvPgogIDxyZWN0IHg9IjM3NSIgeT0iMjk4IiB3aWR0aD0iMjgiIGhlaWdodD0iMzUiIHJ4PSIxMCIgZmlsbD0iIzdhNWEyYSIvPgogIDwhLS0gaGlnaGxpZ2h0IG9uIGJhY2sgLS0+CiAgPGVsbGlwc2UgY3g9IjI2MCIgY3k9IjIyNSIgcng9IjcwIiByeT0iMjIiIGZpbGw9IiNjOGE4NzAiIG9wYWNpdHk9IjAuMjUiLz4KICA8IS0tIGxhYmVsIC0tPgogIDx0ZXh0IHg9IjIwIiB5PSIzNDUiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLCBzZXJpZiIgZm9udC1zaXplPSIxMyIgZmlsbD0iIzJhMWEwOCIgb3BhY2l0eT0iMC43IiBmb250LXN0eWxlPSJpdGFsaWMiPkh5ZHJvY2hvZXJ1cyBoeWRyb2NoYWVyaXMg4oCUIGFkdWx0IG5lYXIgcml2ZXJiYW5rPC90ZXh0Pgo8L3N2Zz4="
+               alt="Adult capybara in natural habitat"
+               loading="lazy">
+          <figcaption>An adult capybara resting near a riverbank in South America. Photo: Wikimedia Commons</figcaption>
+        </figure>
+
+        <p>The <strong>capybara</strong> (<em>Hydrochoerus hydrochaeris</em>) is a giant semi-aquatic rodent native to South America and the largest living rodent on Earth. Adults typically weigh between 35 and 66 kilograms, with some individuals reaching up to 91 kg. Their name comes from the Tupi language, roughly meaning <em>"master of the grasses."</em></p>
+
+        <p>Capybaras inhabit savannas and dense forests, always living near bodies of water such as rivers, lakes, swamps, and ponds. They are found across much of South America east of the Andes — from Panama and Colombia in the north, down through Brazil, Peru, Bolivia, Venezuela, and as far south as northern Argentina.</p>
+
+        <p>Despite their imposing size, capybaras are gentle, highly social animals. They have become something of an internet phenomenon due to their extraordinary calm and tolerance — viral footage frequently shows other animals such as birds, monkeys, and even caimans resting peacefully on or beside capybaras.</p>
+      </div>
+
+      <!-- SURVIVAL -->
+      <h2 class="section-heading" id="survival">1. Survival in the Wild</h2>
+
+      <div class="clearfix">
+        <figure class="wiki-image">
+          <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NDAgMzYwIiB3aWR0aD0iNjQwIiBoZWlnaHQ9IjM2MCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImJnMiIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjZDRjOGE4Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2I4YTg3OCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjY0MCIgaGVpZ2h0PSIzNjAiIGZpbGw9InVybCgjYmcyKSIvPgogIDwhLS0gZm9saWFnZSBiYWNrZ3JvdW5kIC0tPgogIDxjaXJjbGUgY3g9IjgwIiBjeT0iNjAiIHI9IjcwIiBmaWxsPSIjN2E5YTUwIiBvcGFjaXR5PSIwLjUiLz4KICA8Y2lyY2xlIGN4PSI1NjAiIGN5PSI4MCIgcj0iOTAiIGZpbGw9IiM2YThhNDAiIG9wYWNpdHk9IjAuNDUiLz4KICA8Y2lyY2xlIGN4PSIzMjAiIGN5PSIzMCIgcj0iODAiIGZpbGw9IiM3YTlhNTAiIG9wYWNpdHk9IjAuMyIvPgogIDwhLS0gbGFyZ2UgaGVhZC9mYWNlIGNsb3NlLXVwIC0tPgogIDwhLS0gbmVjay9ib2R5IHN1Z2dlc3Rpb24gLS0+CiAgPGVsbGlwc2UgY3g9IjMyMCIgY3k9IjQwMCIgcng9IjIwMCIgcnk9IjEwMCIgZmlsbD0iIzhjNmIzYSIvPgogIDwhLS0gbWFpbiBoZWFkIC0tPgogIDxlbGxpcHNlIGN4PSIzMTAiIGN5PSIyNDAiIHJ4PSIxNjAiIHJ5PSIxNDUiIGZpbGw9IiM4YzZiM2EiLz4KICA8IS0tIGRhcmsgZnVyIHRleHR1cmUgbGluZXMgLS0+CiAgPHBhdGggZD0iTTIwMCAxODAgUTIyMCAxNjAgMjQwIDE4NSIgc3Ryb2tlPSIjNmE0ZTI4IiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiIG9wYWNpdHk9IjAuNSIvPgogIDxwYXRoIGQ9Ik0zNTAgMTY1IFEzNzUgMTUwIDM5NSAxNzAiIHN0cm9rZT0iIzZhNGUyOCIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBvcGFjaXR5PSIwLjUiLz4KICA8cGF0aCBkPSJNMTYwIDIyMCBRMTc1IDIwNSAxOTUgMjIwIiBzdHJva2U9IiM2YTRlMjgiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIgb3BhY2l0eT0iMC40Ii8+CiAgPCEtLSBicm9hZCBmbGF0IG11enpsZSAtLT4KICA8cmVjdCB4PSIyMDgiIHk9IjI1OCIgd2lkdGg9IjIwMCIgaGVpZ2h0PSI4NSIgcng9IjIyIiBmaWxsPSIjN2E1YTJhIi8+CiAgPCEtLSBub3N0cmlsIHNsaXRzIOKAlCBjaGFyYWN0ZXJpc3RpYyBjYXB5YmFyYSBmZWF0dXJlIC0tPgogIDxlbGxpcHNlIGN4PSIyNTIiIGN5PSIyOTAiIHJ4PSIxNCIgcnk9IjgiIGZpbGw9IiMzYTI1MDgiLz4KICA8ZWxsaXBzZSBjeD0iMzYwIiBjeT0iMjkwIiByeD0iMTQiIHJ5PSI4IiBmaWxsPSIjM2EyNTA4Ii8+CiAgPCEtLSBtb3V0aCBsaW5lIC0tPgogIDxwYXRoIGQ9Ik0yMzAgMzEwIFEzMDYgMzMwIDM4MiAzMTAiIHN0cm9rZT0iIzVhM2ExOCIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIi8+CiAgPCEtLSBleWVzIOKAlCBzZXQgaGlnaCBhbmQgd2lkZSBhcGFydCAtLT4KICA8Y2lyY2xlIGN4PSIyMDAiIGN5PSIyMTUiIHI9IjIyIiBmaWxsPSIjMmExYTA4Ii8+CiAgPGNpcmNsZSBjeD0iMjA4IiBjeT0iMjA4IiByPSI4IiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjUiLz4KICA8Y2lyY2xlIGN4PSIxOTYiIGN5PSIyMTIiIHI9IjQiIGZpbGw9IiM2YTRhMjAiIG9wYWNpdHk9IjAuOCIvPgogIDxjaXJjbGUgY3g9IjQxNSIgY3k9IjIxMiIgcj0iMjIiIGZpbGw9IiMyYTFhMDgiLz4KICA8Y2lyY2xlIGN4PSI0MjMiIGN5PSIyMDUiIHI9IjgiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuNSIvPgogIDxjaXJjbGUgY3g9IjQxMSIgY3k9IjIwOSIgcj0iNCIgZmlsbD0iIzZhNGEyMCIgb3BhY2l0eT0iMC44Ii8+CiAgPCEtLSBlYXJzIOKAlCBzbWFsbCBhbmQgcm91bmRlZCAtLT4KICA8ZWxsaXBzZSBjeD0iMTg1IiBjeT0iMTM4IiByeD0iMzIiIHJ5PSIyNCIgZmlsbD0iIzdhNWEyYSIvPgogIDxlbGxpcHNlIGN4PSIxODUiIGN5PSIxMzgiIHJ4PSIyMCIgcnk9IjE0IiBmaWxsPSIjZDg4ODcwIiBvcGFjaXR5PSIwLjUiLz4KICA8ZWxsaXBzZSBjeD0iNDMwIiBjeT0iMTM1IiByeD0iMzIiIHJ5PSIyNCIgZmlsbD0iIzdhNWEyYSIvPgogIDxlbGxpcHNlIGN4PSI0MzAiIGN5PSIxMzUiIHJ4PSIyMCIgcnk9IjE0IiBmaWxsPSIjZDg4ODcwIiBvcGFjaXR5PSIwLjUiLz4KICA8IS0tIHRvcCBvZiBoZWFkIGhpZ2hsaWdodCAtLT4KICA8ZWxsaXBzZSBjeD0iMzA1IiBjeT0iMTYwIiByeD0iOTAiIHJ5PSI0MCIgZmlsbD0iI2M4YTg3MCIgb3BhY2l0eT0iMC4yIi8+CiAgPCEtLSB3aGlza2VycyAtLT4KICA8bGluZSB4MT0iMTQ1IiB5MT0iMjg1IiB4Mj0iMjIwIiB5Mj0iMjc4IiBzdHJva2U9IiNkNGMwOTAiIHN0cm9rZS13aWR0aD0iMS41IiBvcGFjaXR5PSIwLjciLz4KICA8bGluZSB4MT0iMTQwIiB5MT0iMjk4IiB4Mj0iMjE4IiB5Mj0iMjk1IiBzdHJva2U9IiNkNGMwOTAiIHN0cm9rZS13aWR0aD0iMS41IiBvcGFjaXR5PSIwLjYiLz4KICA8bGluZSB4MT0iMTUwIiB5MT0iMzExIiB4Mj0iMjE1IiB5Mj0iMzEyIiBzdHJva2U9IiNkNGMwOTAiIHN0cm9rZS13aWR0aD0iMS41IiBvcGFjaXR5PSIwLjUiLz4KICA8bGluZSB4MT0iMzk1IiB5MT0iMjc4IiB4Mj0iNDc1IiB5Mj0iMjgyIiBzdHJva2U9IiNkNGMwOTAiIHN0cm9rZS13aWR0aD0iMS41IiBvcGFjaXR5PSIwLjciLz4KICA8bGluZSB4MT0iMzkyIiB5MT0iMjkzIiB4Mj0iNDc1IiB5Mj0iMjk2IiBzdHJva2U9IiNkNGMwOTAiIHN0cm9rZS13aWR0aD0iMS41IiBvcGFjaXR5PSIwLjYiLz4KICA8bGluZSB4MT0iMzk1IiB5MT0iMzA4IiB4Mj0iNDcwIiB5Mj0iMzE1IiBzdHJva2U9IiNkNGMwOTAiIHN0cm9rZS13aWR0aD0iMS41IiBvcGFjaXR5PSIwLjUiLz4KICA8dGV4dCB4PSIyMCIgeT0iMzUwIiBmb250LWZhbWlseT0iR2VvcmdpYSwgc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiMzYTI4MDgiIG9wYWNpdHk9IjAuNzUiIGZvbnQtc3R5bGU9Iml0YWxpYyI+Q2xvc2UtdXAgc2hvd2luZyB0aGUgY2hhcmFjdGVyaXN0aWMgd2lkZSwgZmxhdCBtdXp6bGUgYW5kIGhpZ2gtc2V0IGV5ZXM8L3RleHQ+Cjwvc3ZnPg=="
+               alt="Capybara close up portrait"
+               loading="lazy">
+          <figcaption>Close-up of a capybara showing its distinctive broad, flat muzzle and barrel-shaped body. Photo: Wikimedia Commons</figcaption>
+        </figure>
+
+        <h3 class="subsection-heading">Diet & Foraging</h3>
+        <p>Capybaras are strict herbivores. Their diet consists mainly of grasses and aquatic plants, supplemented with fruit, tree bark, and reeds during the dry season when food is scarce. They are highly selective grazers, preferring young, tender shoots with higher protein and lower fiber content.</p>
+
+        <p>A single capybara can eat 3 to 4 kg of grass per day. Like many herbivores with complex gut bacteria, they practice <strong>coprophagy</strong> — consuming their own droppings in the morning to reabsorb nutrients that weren't fully processed during the first pass through their digestive system.</p>
+
+        <h3 class="subsection-heading">Water as a Survival Tool</h3>
+        <p>Water is central to the capybara's survival strategy. Their bodies are perfectly adapted for semi-aquatic life: their eyes, ears, and nostrils are positioned high on the head so they can remain almost entirely submerged while still sensing their environment. They can hold their breath underwater for up to five minutes — a critical escape mechanism from predators.</p>
+
+        <div class="fact-band">
+          <strong>Survival fact:</strong> When threatened, a capybara group will scatter into water simultaneously, making it difficult for a single predator to single out one individual. This coordinated "splash escape" is one of their most effective defenses.
+        </div>
+
+        <h3 class="subsection-heading">Predators</h3>
+        <p>Despite their size, capybaras face a range of natural predators. On land they are hunted by jaguars, pumas, and ocelots. In the water, green anacondas and caimans pose the greatest threat. From the air, harpy eagles and large raptors may target juvenile capybaras. Their main defense is vigilance: herds rotate alert individuals and use alarm calls to warn the group.</p>
+      </div>
+
+      <!-- REPRODUCTION -->
+      <h2 class="section-heading" id="reproduction">2. Reproduction</h2>
+
+      <figure class="wiki-image">
+        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NDAgMzYwIiB3aWR0aD0iNjQwIiBoZWlnaHQ9IjM2MCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImdyYXNzMyIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjOWFiYTY4Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzdhOWE0OCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjY0MCIgaGVpZ2h0PSIzNjAiIGZpbGw9InVybCgjZ3Jhc3MzKSIvPgogIDwhLS0gc2t5IHN0cmlwIC0tPgogIDxyZWN0IHdpZHRoPSI2NDAiIGhlaWdodD0iMTEwIiBmaWxsPSIjYjhkOGM4IiBvcGFjaXR5PSIwLjciLz4KICA8IS0tIHRyZWUvc2hydWIgYmcgLS0+CiAgPGNpcmNsZSBjeD0iMTAwIiBjeT0iOTUiIHI9Ijc1IiBmaWxsPSIjNWE4MDQwIiBvcGFjaXR5PSIwLjciLz4KICA8Y2lyY2xlIGN4PSI1NDAiIGN5PSI4OCIgcj0iODUiIGZpbGw9IiM0YTcwMzAiIG9wYWNpdHk9IjAuNiIvPgogIDwhLS0gZ3JvdW5kIC0tPgogIDxyZWN0IHk9IjIyMCIgd2lkdGg9IjY0MCIgaGVpZ2h0PSIxNDAiIGZpbGw9IiM4YWFhNTgiLz4KICA8IS0tIGdyYXNzIGRldGFpbHMgLS0+CiAgPGcgc3Ryb2tlPSIjNmE4YTM4IiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiIG9wYWNpdHk9IjAuNiI+CiAgICA8bGluZSB4MT0iNTAiIHkxPSIyMjAiIHgyPSI1NSIgeTI9IjE5NSIvPjxsaW5lIHgxPSI2NSIgeTE9IjIyMCIgeDI9IjU4IiB5Mj0iMTkyIi8+CiAgICA8bGluZSB4MT0iNTYwIiB5MT0iMjIwIiB4Mj0iNTY1IiB5Mj0iMTk1Ii8+PGxpbmUgeDE9IjU3NSIgeTE9IjIyMCIgeDI9IjU3MCIgeTI9IjE5MiIvPgogICAgPGxpbmUgeDE9IjQ4MCIgeTE9IjIyMCIgeDI9IjQ4NCIgeTI9IjE5OCIvPjxsaW5lIHgxPSIxNjAiIHkxPSIyMjAiIHgyPSIxNTUiIHkyPSIyMDAiLz4KICA8L2c+CiAgPCEtLSBNT1RIRVIg4oCUIGxhcmdlIGJvZHkgLS0+CiAgPGVsbGlwc2UgY3g9IjI5NSIgY3k9IjI0OCIgcng9IjE1NSIgcnk9IjY4IiBmaWxsPSIjOGM2YjNhIi8+CiAgPCEtLSBtb3RoZXIgaGVhZCAtLT4KICA8ZWxsaXBzZSBjeD0iNDIwIiBjeT0iMjEyIiByeD0iNzIiIHJ5PSI1OCIgZmlsbD0iIzhjNmIzYSIvPgogIDxyZWN0IHg9IjQ2MCIgeT0iMjIyIiB3aWR0aD0iNTIiIGhlaWdodD0iMzMiIHJ4PSIxMCIgZmlsbD0iIzdhNWEyYSIvPgogIDxlbGxpcHNlIGN4PSI0NzQiIGN5PSIyMzciIHJ4PSI1IiByeT0iMyIgZmlsbD0iIzNhMmExMCIvPgogIDxlbGxpcHNlIGN4PSI0OTMiIGN5PSIyMzciIHJ4PSI1IiByeT0iMyIgZmlsbD0iIzNhMmExMCIvPgogIDxjaXJjbGUgY3g9IjQzMiIgY3k9IjIwMCIgcj0iOSIgZmlsbD0iIzJhMWEwOCIvPgogIDxjaXJjbGUgY3g9IjQzNSIgY3k9IjE5NyIgcj0iMyIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC42Ii8+CiAgPCEtLSBtb3RoZXIgZWFyIC0tPgogIDxlbGxpcHNlIGN4PSI0MDAiIGN5PSIxNzgiIHJ4PSIxNCIgcnk9IjEwIiBmaWxsPSIjN2E1YTJhIi8+CiAgPCEtLSBtb3RoZXIgbGVncyAtLT4KICA8cmVjdCB4PSIxOTUiIHk9IjI5OCIgd2lkdGg9IjI2IiBoZWlnaHQ9IjM2IiByeD0iOSIgZmlsbD0iIzdhNWEyYSIvPgogIDxyZWN0IHg9IjI0NSIgeT0iMzAwIiB3aWR0aD0iMjYiIGhlaWdodD0iMzMiIHJ4PSI5IiBmaWxsPSIjN2E1YTJhIi8+CiAgPHJlY3QgeD0iMzMwIiB5PSIyOTgiIHdpZHRoPSIyNiIgaGVpZ2h0PSIzNiIgcng9IjkiIGZpbGw9IiM3YTVhMmEiLz4KICA8cmVjdCB4PSIzNzgiIHk9IjMwMCIgd2lkdGg9IjI2IiBoZWlnaHQ9IjMzIiByeD0iOSIgZmlsbD0iIzdhNWEyYSIvPgogIDwhLS0gUFVQUyAtLT4KICA8IS0tIHB1cCAxIOKAlCBiZXNpZGUgbW90aGVyIC0tPgogIDxlbGxpcHNlIGN4PSIxNDUiIGN5PSIyNzAiIHJ4PSI1NSIgcnk9IjMwIiBmaWxsPSIjYTA3YTQwIi8+CiAgPGVsbGlwc2UgY3g9IjE4NSIgY3k9IjI1MiIgcng9IjMwIiByeT0iMjYiIGZpbGw9IiNhMDdhNDAiLz4KICA8cmVjdCB4PSIxOTQiIHk9IjI1OCIgd2lkdGg9IjIyIiBoZWlnaHQ9IjE0IiByeD0iNiIgZmlsbD0iIzhhNmEzMCIvPgogIDxjaXJjbGUgY3g9IjE3NSIgY3k9IjI0NSIgcj0iNSIgZmlsbD0iIzJhMWEwOCIvPgogIDxjaXJjbGUgY3g9IjE3NyIgY3k9IjI0MyIgcj0iMiIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC42Ii8+CiAgPCEtLSBwdXAgbGVncyAtLT4KICA8cmVjdCB4PSIxMjAiIHk9IjI5MCIgd2lkdGg9IjE0IiBoZWlnaHQ9IjIwIiByeD0iNSIgZmlsbD0iIzhhNmEzMCIvPgogIDxyZWN0IHg9IjE0OCIgeT0iMjkyIiB3aWR0aD0iMTQiIGhlaWdodD0iMTgiIHJ4PSI1IiBmaWxsPSIjOGE2YTMwIi8+CiAgPHJlY3QgeD0iMTc1IiB5PSIyOTAiIHdpZHRoPSIxNCIgaGVpZ2h0PSIyMCIgcng9IjUiIGZpbGw9IiM4YTZhMzAiLz4KICA8IS0tIHB1cCAyIOKAlCB1bmRlciBtb3RoZXIgLS0+CiAgPGVsbGlwc2UgY3g9IjI2MCIgY3k9IjI5NSIgcng9IjQ1IiByeT0iMjIiIGZpbGw9IiNhMDdhNDAiLz4KICA8ZWxsaXBzZSBjeD0iMjk1IiBjeT0iMjgzIiByeD0iMjYiIHJ5PSIyMiIgZmlsbD0iI2EwN2E0MCIvPgogIDxjaXJjbGUgY3g9IjI4MiIgY3k9IjI3NSIgcj0iNSIgZmlsbD0iIzJhMWEwOCIvPgogIDxjaXJjbGUgY3g9IjI4NCIgY3k9IjI3MyIgcj0iMiIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC41Ii8+CiAgPCEtLSBwdXAgMyDigJQgbnVyc2luZyBzdWdnZXN0aW9uIC0tPgogIDxlbGxpcHNlIGN4PSIyMzUiIGN5PSIyNzgiIHJ4PSIzNSIgcnk9IjE4IiBmaWxsPSIjYjA4YTUwIiBvcGFjaXR5PSIwLjg1Ii8+CiAgPCEtLSBoaWdobGlnaHQgbW90aGVyIC0tPgogIDxlbGxpcHNlIGN4PSIyNzAiIGN5PSIyMjUiIHJ4PSI4MCIgcnk9IjIwIiBmaWxsPSIjYzhhODcwIiBvcGFjaXR5PSIwLjIiLz4KICA8dGV4dCB4PSIyMCIgeT0iMzQ4IiBmb250LWZhbWlseT0iR2VvcmdpYSwgc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiMyYTFhMDgiIG9wYWNpdHk9IjAuNyIgZm9udC1zdHlsZT0iaXRhbGljIj5Nb3RoZXIgY2FweWJhcmEgd2l0aCBwcmVjb2NpYWwgeW91bmcg4oCUIHB1cHMgYXJlIGJvcm4gb3Blbi1leWVkIGFuZCBtb2JpbGU8L3RleHQ+Cjwvc3ZnPg=="
+             alt="Capybara mother with pups"
+             loading="lazy">
+        <figcaption>A mother capybara with her young pups. Capybara young are born precocial — fully furred with open eyes. Photo: Wikimedia Commons</figcaption>
+      </figure>
+
+      <p>Capybaras are polygynous, meaning one dominant male mates with multiple females in a group. Breeding can occur year-round but peaks during the rainy season when food is most abundant and water levels facilitate movement between groups.</p>
+
+      <h3 class="subsection-heading">Mating</h3>
+      <p>Courtship takes place in water. The male pursues the female, and she controls the pace of mating by submerging or moving away. Females signal receptivity through a unique <em>purring</em> vocalization. The dominant male of a group monopolizes most matings, while subordinate males may mate opportunistically at the group's periphery.</p>
+
+      <h3 class="subsection-heading">Gestation & Birth</h3>
+      <p>The gestation period lasts approximately <strong>130 to 150 days</strong> (around 4 to 5 months). A litter typically contains 4 to 5 pups, though litters of up to 8 have been recorded. Births occur on land, usually away from the main group. Capybara pups are <em>precocial</em> — born fully furred, with eyes open, and able to walk within hours of birth.</p>
+
+      <div class="fact-band">
+        <strong>Communal nursing:</strong> Capybara groups practice alloparental care — all nursing females in a group will suckle any pup, not just their own. Pups form a "nursery" within the group and are watched over collectively, dramatically increasing their survival rate.
+      </div>
+
+      <h3 class="subsection-heading">Growth</h3>
+      <p>Pups begin grazing within their first week but continue to nurse for 3 to 4 months. They reach sexual maturity at around 15 to 18 months. In the wild, capybaras live approximately 6 to 10 years; in captivity, up to 12 years.</p>
+
+      <!-- BEHAVIOR -->
+      <h2 class="section-heading" id="behavior">3. Behavior</h2>
+
+      <figure class="wiki-image">
+        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NDAgMzYwIiB3aWR0aD0iNjQwIiBoZWlnaHQ9IjM2MCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InNreTQiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2Q0ZThjOCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNiOGQ4YTgiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9IndhdGVyNCIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNzhiOGNjIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzU4OThhYSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjY0MCIgaGVpZ2h0PSIyMjAiIGZpbGw9InVybCgjc2t5NCkiLz4KICA8IS0tIGRpc3RhbnQgcGFsbXMgYW5kIHZlZ2V0YXRpb24gLS0+CiAgPHJlY3QgeD0iNTUiIHk9IjEwMCIgd2lkdGg9IjgiIGhlaWdodD0iMTEwIiBmaWxsPSIjNmE1MDMwIi8+CiAgPGVsbGlwc2UgY3g9IjU5IiBjeT0iMTAyIiByeD0iMzgiIHJ5PSIyOCIgZmlsbD0iIzVhODgzMCIgb3BhY2l0eT0iMC44Ii8+CiAgPHJlY3QgeD0iNTgwIiB5PSIxMDUiIHdpZHRoPSI3IiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzZhNTAzMCIvPgogIDxlbGxpcHNlIGN4PSI1ODQiIGN5PSIxMDciIHJ4PSIzNSIgcnk9IjI2IiBmaWxsPSIjNWE4ODMwIiBvcGFjaXR5PSIwLjciLz4KICA8ZWxsaXBzZSBjeD0iMjAwIiBjeT0iMTg1IiByeD0iODAiIHJ5PSI1MCIgZmlsbD0iIzRhNzgzMCIgb3BhY2l0eT0iMC42Ii8+CiAgPGVsbGlwc2UgY3g9IjQ2MCIgY3k9IjE4MCIgcng9IjkwIiByeT0iNTUiIGZpbGw9IiM1YTg4MzAiIG9wYWNpdHk9IjAuNTUiLz4KICA8IS0tIGdyb3VuZC9iYW5rIC0tPgogIDxyZWN0IHk9IjE4NSIgd2lkdGg9IjY0MCIgaGVpZ2h0PSIxNzUiIGZpbGw9IiM5MGI4NjAiLz4KICA8IS0tIHdhdGVyIC0tPgogIDxlbGxpcHNlIGN4PSIzMjAiIGN5PSIzMzAiIHJ4PSIzMTAiIHJ5PSI1MCIgZmlsbD0idXJsKCN3YXRlcjQpIiBvcGFjaXR5PSIwLjkiLz4KICA8IS0tIENhcHliYXJhIDEgKGxlZnQsIGFsZXJ0KSAtLT4KICA8ZWxsaXBzZSBjeD0iOTUiIGN5PSIyNTIiIHJ4PSI3NSIgcnk9IjM4IiBmaWxsPSIjOGM2YjNhIi8+CiAgPGVsbGlwc2UgY3g9IjE1NSIgY3k9IjIyOCIgcng9IjQwIiByeT0iMzQiIGZpbGw9IiM4YzZiM2EiLz4KICA8cmVjdCB4PSIxNzgiIHk9IjIzNiIgd2lkdGg9IjI4IiBoZWlnaHQ9IjIwIiByeD0iNyIgZmlsbD0iIzdhNWEyYSIvPgogIDxjaXJjbGUgY3g9IjE2MCIgY3k9IjIxOCIgcj0iNiIgZmlsbD0iIzJhMWEwOCIvPgogIDxjaXJjbGUgY3g9IjE2MiIgY3k9IjIxNiIgcj0iMiIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC42Ii8+CiAgPHJlY3QgeD0iNjUiIHk9IjI4MSIgd2lkdGg9IjE2IiBoZWlnaHQ9IjI0IiByeD0iNiIgZmlsbD0iIzdhNWEyYSIvPgogIDxyZWN0IHg9Ijk1IiB5PSIyODIiIHdpZHRoPSIxNiIgaGVpZ2h0PSIyMiIgcng9IjYiIGZpbGw9IiM3YTVhMmEiLz4KICA8cmVjdCB4PSIxMjIiIHk9IjI4MSIgd2lkdGg9IjE2IiBoZWlnaHQ9IjI0IiByeD0iNiIgZmlsbD0iIzdhNWEyYSIvPgogIDwhLS0gQ2FweWJhcmEgMiAoY2VudGVyIGxhcmdlLCBkb21pbmFudCBtYWxlKSAtLT4KICA8ZWxsaXBzZSBjeD0iMzEwIiBjeT0iMjQ4IiByeD0iMTA1IiByeT0iNTIiIGZpbGw9IiM4YzZiM2EiLz4KICA8ZWxsaXBzZSBjeD0iMzkzIiBjeT0iMjE1IiByeD0iNTgiIHJ5PSI0OCIgZmlsbD0iIzhjNmIzYSIvPgogIDwhLS0gbW9yaWxsbyBzY2VudCBnbGFuZCBvbiBzbm91dCDigJQgZGlzdGluY3RpdmUgZm9yIG1hbGVzIC0tPgogIDxyZWN0IHg9IjQyNSIgeT0iMjIzIiB3aWR0aD0iMzUiIGhlaWdodD0iMjQiIHJ4PSI4IiBmaWxsPSIjN2E1YTJhIi8+CiAgPGVsbGlwc2UgY3g9IjQzNSIgY3k9IjIxOCIgcng9IjEyIiByeT0iOCIgZmlsbD0iIzVhM2ExYSIgb3BhY2l0eT0iMC43Ii8+CiAgPGNpcmNsZSBjeD0iNDAwIiBjeT0iMjA0IiByPSI4IiBmaWxsPSIjMmExYTA4Ii8+CiAgPGNpcmNsZSBjeD0iNDAzIiBjeT0iMjAxIiByPSIzIiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjYiLz4KICA8cmVjdCB4PSIyMjUiIHk9IjI4OCIgd2lkdGg9IjIwIiBoZWlnaHQ9IjI4IiByeD0iOCIgZmlsbD0iIzdhNWEyYSIvPgogIDxyZWN0IHg9IjI2OCIgeT0iMjkwIiB3aWR0aD0iMjAiIGhlaWdodD0iMjYiIHJ4PSI4IiBmaWxsPSIjN2E1YTJhIi8+CiAgPHJlY3QgeD0iMzQ4IiB5PSIyODgiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyOCIgcng9IjgiIGZpbGw9IiM3YTVhMmEiLz4KICA8cmVjdCB4PSIzOTAiIHk9IjI5MCIgd2lkdGg9IjIwIiBoZWlnaHQ9IjI2IiByeD0iOCIgZmlsbD0iIzdhNWEyYSIvPgogIDwhLS0gQ2FweWJhcmEgMyAocmlnaHQpIC0tPgogIDxlbGxpcHNlIGN4PSI1MzUiIGN5PSIyNTYiIHJ4PSI4MCIgcnk9IjQwIiBmaWxsPSIjYTA3YTQwIi8+CiAgPGVsbGlwc2UgY3g9IjU5OCIgY3k9IjIzMiIgcng9IjQ0IiByeT0iMzYiIGZpbGw9IiNhMDdhNDAiLz4KICA8cmVjdCB4PSI2MjIiIHk9IjI0MCIgd2lkdGg9IjE4IiBoZWlnaHQ9IjE2IiByeD0iNSIgZmlsbD0iIzhhNmEzMCIvPgogIDxjaXJjbGUgY3g9IjYwNSIgY3k9IjIyMiIgcj0iNiIgZmlsbD0iIzJhMWEwOCIvPgogIDxjaXJjbGUgY3g9IjYwNyIgY3k9IjIyMCIgcj0iMiIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC41Ii8+CiAgPHJlY3QgeD0iNTEwIiB5PSIyODYiIHdpZHRoPSIxNiIgaGVpZ2h0PSIyMiIgcng9IjYiIGZpbGw9IiM4YTZhMzAiLz4KICA8cmVjdCB4PSI1NDAiIHk9IjI4OCIgd2lkdGg9IjE2IiBoZWlnaHQ9IjIwIiByeD0iNiIgZmlsbD0iIzhhNmEzMCIvPgogIDxyZWN0IHg9IjU2NSIgeT0iMjg2IiB3aWR0aD0iMTYiIGhlaWdodD0iMjIiIHJ4PSI2IiBmaWxsPSIjOGE2YTMwIi8+CiAgPCEtLSBiaXJkIG9uIGNhcHliYXJhIChmYW1vdXMgYmVoYXZpb3IpIC0tPgogIDxlbGxpcHNlIGN4PSIyODUiIGN5PSIyMTAiIHJ4PSIxMiIgcnk9IjciIGZpbGw9IiNlOGUwYzAiLz4KICA8ZWxsaXBzZSBjeD0iMjk0IiBjeT0iMjA3IiByeD0iOCIgcnk9IjYiIGZpbGw9IiNkOGQwYjAiLz4KICA8bGluZSB4MT0iMjkzIiB5MT0iMjEzIiB4Mj0iMjk1IiB5Mj0iMjIwIiBzdHJva2U9IiNhMDkwNjAiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPGxpbmUgeDE9IjI5NSIgeTE9IjIxMyIgeDI9IjI5OCIgeTI9IjIyMCIgc3Ryb2tlPSIjYTA5MDYwIiBzdHJva2Utd2lkdGg9IjEuNSIvPgogIDxjaXJjbGUgY3g9IjI5OCIgY3k9IjIwNiIgcj0iMiIgZmlsbD0iIzJhMjAxMCIvPgogIDxsaW5lIHgxPSIzMDAiIHkxPSIyMDgiIHgyPSIzMDgiIHkyPSIyMDgiIHN0cm9rZT0iI2M4YTA1MCIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPCEtLSB3YXRlciByZWZsZWN0aW9uIC0tPgogIDxlbGxpcHNlIGN4PSIzMTAiIGN5PSIzMzUiIHJ4PSIyMDAiIHJ5PSIyMCIgZmlsbD0iIzc4YjhjYyIgb3BhY2l0eT0iMC40Ii8+CiAgPHRleHQgeD0iMjAiIHk9IjM1MiIgZm9udC1mYW1pbHk9Ikdlb3JnaWEsIHNlcmlmIiBmb250LXNpemU9IjEzIiBmaWxsPSIjMmExYTA4IiBvcGFjaXR5PSIwLjciIGZvbnQtc3R5bGU9Iml0YWxpYyI+QSBncm91cCByZXN0aW5nIG5lYXIgd2F0ZXIg4oCUIG5vdGUgYmlyZCBwZXJjaGVkIG9uIGRvbWluYW50IG1hbGUgKGNlbnRlcik8L3RleHQ+Cjwvc3ZnPg=="
+             alt="Group of capybaras together"
+             loading="lazy">
+        <figcaption>Capybaras are highly social animals, living in groups of 10 to 20 individuals. Photo: Wikimedia Commons</figcaption>
+      </figure>
+
+      <h3 class="subsection-heading">Social Structure</h3>
+      <p>Capybaras are profoundly social. They live in groups of 10 to 20 individuals, though groups of up to 100 have been observed near water sources during the dry season. A typical group consists of one dominant male, several females, subordinate males, and offspring of various ages.</p>
+
+      <p>The dominant male actively patrols the group's territory, marking boundaries with scent glands located on his snout (the <em>morillo</em> — a large, hairless swollen gland unique to male capybaras) and anal glands. Subordinate males are tolerated within the group but occupy the periphery, often acting as sentinels.</p>
+
+      <h3 class="subsection-heading">Communication</h3>
+      <p>Capybaras have a surprisingly rich vocal repertoire for a rodent. Known vocalizations include:</p>
+      <ul>
+        <li><strong>Purring</strong> — contact call indicating contentment or used during courtship</li>
+        <li><strong>Barking</strong> — sharp alarm call signaling danger</li>
+        <li><strong>Whistling/squealing</strong> — distress call, especially from pups</li>
+        <li><strong>Clicking</strong> — used during social bonding and grooming</li>
+        <li><strong>Tooth chattering</strong> — threat display between males</li>
+      </ul>
+
+      <h3 class="subsection-heading">Thermoregulation & Daily Rhythm</h3>
+      <p>Capybaras are most active in the early morning and late afternoon, resting during the hottest midday hours — either submerged in water or lying in shaded, muddy areas. This behavior simultaneously cools them and deters insects. They wallow in mud much like pigs, which also protects their skin from sunburn and parasites.</p>
+
+      <div class="fact-band">
+        <strong>The "zen animal":</strong> Capybaras' extraordinary tolerance of other species — documented resting with birds, turtles, monkeys, and even crocodilians — likely developed as a side effect of their low-aggression social nature and comfort with proximity, which is essential in their dense group life.
+      </div>
+
+      <!-- CONSERVATION -->
+      <h2 class="section-heading" id="conservation">4. Conservation Status</h2>
+
+      <p>The capybara is currently listed as <strong>Least Concern</strong> by the IUCN Red List, with a stable population across most of its range. However, it faces regional threats including habitat loss due to agricultural expansion, hunting for its meat and hide, and capture for the pet trade.</p>
+
+      <p>In some South American countries, capybaras are legally farmed for meat and leather, which has helped reduce pressure on wild populations. In Brazil and Venezuela, capybara ranching is an established practice. In recent decades, capybara populations have expanded into urban and suburban areas in cities such as São Paulo and Buenos Aires, where they now regularly inhabit golf courses, parks, and gated communities.</p>
+
+      <div class="categories">
+        <span>Categories:</span> Mammals · Rodents · South American Wildlife · Semi-aquatic Animals · Herbivores · Social Animals
+      </div>
+    </main>
+
+    <!-- SIDEBAR / INFOBOX -->
+    <aside class="sidebar">
+      <div class="infobox">
+        <div class="infobox-title">Capybara</div>
+        <div class="infobox-hero">
+          <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMDAgMjIwIiB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIyMCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImJveGJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNiOGQ0YjAiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjOGFhYTcwIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJib3hib2R5IiB4MT0iMCIgeTE9IjAiIHgyPSIwIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM4YzZiM2EiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjNmE0ZTI4Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIyMCIgZmlsbD0idXJsKCNib3hiZykiLz4KICA8IS0tIHdhdGVyIHN0cmlwIGF0IGJvdHRvbSAtLT4KICA8ZWxsaXBzZSBjeD0iMTUwIiBjeT0iMjA1IiByeD0iMTgwIiByeT0iMzUiIGZpbGw9IiM2YWFjYmEiIG9wYWNpdHk9IjAuNzUiLz4KICA8IS0tIGJvZHkgLS0+CiAgPGVsbGlwc2UgY3g9IjEzOCIgY3k9IjE2OCIgcng9IjEwOCIgcnk9IjU2IiBmaWxsPSJ1cmwoI2JveGJvZHkpIi8+CiAgPCEtLSBoZWFkIC0tPgogIDxlbGxpcHNlIGN4PSIyMTYiIGN5PSIxMzAiIHJ4PSI2MiIgcnk9IjUyIiBmaWxsPSIjOGM2YjNhIi8+CiAgPCEtLSBtdXp6bGUgLS0+CiAgPHJlY3QgeD0iMjQ4IiB5PSIxMzgiIHdpZHRoPSI0MiIgaGVpZ2h0PSIzMCIgcng9IjEwIiBmaWxsPSIjN2E1YTJhIi8+CiAgPCEtLSBub3N0cmlscyAtLT4KICA8ZWxsaXBzZSBjeD0iMjYwIiBjeT0iMTUxIiByeD0iNSIgcnk9IjMuNSIgZmlsbD0iIzNhMjUwOCIvPgogIDxlbGxpcHNlIGN4PSIyNzgiIGN5PSIxNTEiIHJ4PSI1IiByeT0iMy41IiBmaWxsPSIjM2EyNTA4Ii8+CiAgPCEtLSBleWUgLS0+CiAgPGNpcmNsZSBjeD0iMjI0IiBjeT0iMTE4IiByPSI5IiBmaWxsPSIjMWEwZTA0Ii8+CiAgPGNpcmNsZSBjeD0iMjI3IiBjeT0iMTE1IiByPSIzLjUiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuNTUiLz4KICA8IS0tIGVhciAtLT4KICA8ZWxsaXBzZSBjeD0iMTk2IiBjeT0iOTYiIHJ4PSIxNCIgcnk9IjEwIiBmaWxsPSIjN2E1YTJhIi8+CiAgPGVsbGlwc2UgY3g9IjE5NiIgY3k9Ijk2IiByeD0iOCIgcnk9IjUuNSIgZmlsbD0iI2M4Nzg2OCIgb3BhY2l0eT0iMC41NSIvPgogIDwhLS0gbGVncyAtLT4KICA8cmVjdCB4PSI2NSIgeT0iMjEyIiB3aWR0aD0iMjAiIGhlaWdodD0iMjIiIHJ4PSI3IiBmaWxsPSIjNmE0ZTI4Ii8+CiAgPHJlY3QgeD0iMTAwIiB5PSIyMTQiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgcng9IjciIGZpbGw9IiM2YTRlMjgiLz4KICA8cmVjdCB4PSIxNTUiIHk9IjIxMiIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIyIiByeD0iNyIgZmlsbD0iIzZhNGUyOCIvPgogIDxyZWN0IHg9IjE5MCIgeT0iMjE0IiB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHJ4PSI3IiBmaWxsPSIjNmE0ZTI4Ii8+CiAgPCEtLSBoaWdobGlnaHQgLS0+CiAgPGVsbGlwc2UgY3g9IjExNSIgY3k9IjE0NSIgcng9IjU4IiByeT0iMTgiIGZpbGw9IiNjOGE4NzAiIG9wYWNpdHk9IjAuMjIiLz4KPC9zdmc+"
+               alt="Capybara portrait">
+        </div>
+        <p class="infobox-caption">Adult capybara</p>
+        <table>
+          <tr>
+            <td>Kingdom</td>
+            <td>Animalia</td>
+          </tr>
+          <tr>
+            <td>Order</td>
+            <td>Rodentia</td>
+          </tr>
+          <tr>
+            <td>Family</td>
+            <td>Caviidae</td>
+          </tr>
+          <tr>
+            <td>Genus</td>
+            <td><em>Hydrochoerus</em></td>
+          </tr>
+          <tr>
+            <td>Species</td>
+            <td><em>H. hydrochaeris</em></td>
+          </tr>
+          <tr>
+            <td>Weight</td>
+            <td>35–66 kg</td>
+          </tr>
+          <tr>
+            <td>Length</td>
+            <td>100–134 cm</td>
+          </tr>
+          <tr>
+            <td>Lifespan</td>
+            <td>6–10 years (wild)</td>
+          </tr>
+          <tr>
+            <td>Habitat</td>
+            <td>Tropical & subtropical forests, savannas, wetlands</td>
+          </tr>
+          <tr>
+            <td>Range</td>
+            <td>South America (east of Andes)</td>
+          </tr>
+          <tr>
+            <td>Diet</td>
+            <td>Herbivore (grasses, aquatic plants)</td>
+          </tr>
+          <tr>
+            <td>Status</td>
+            <td>🟢 Least Concern (IUCN)</td>
+          </tr>
+        </table>
+      </div>
+    </aside>
+
+  </div>
+</div>
+
+</body></html>
